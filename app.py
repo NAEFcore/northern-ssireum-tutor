@@ -38,7 +38,7 @@ with col1:
     # 각 차시별 샘플 영상 URL 매핑 (질문자님의 동영상 URL 링크로 변경 가능합니다)
     video_urls = {
         "1. Core Theory & History": "https://youtube.com",
-        "2. Kinematic Body Mechanics": "https://youtube.com",
+        "2. Kinematic Body Mechanics": "https://www.youtube.com/watch?v=nMp_HV20zI4",
         "3. Physical Conditioning": "https://youtube.com"
     }
     
