@@ -2,32 +2,26 @@ import streamlit as st
 from google import genai
 from google.genai import types
 import os
-import sys
 
-# 1. 한국어 인코딩 깨짐 방지 설정 (UnicodeEncodeError 완벽 해결)
-import io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
-
-# 2. 페이지 레이아웃 설정 (와이드스크린 강의실 형태)
+# 1. 페이지 레이아웃 설정 (와이드스크린 강의실 형태)
 st.set_page_config(page_title="Northern Ssireum Masterclass", layout="wide")
 
-# 3. 구글 AI 스튜디오 API 키 연동
+# 2. 구글 AI 스튜디오 API 키 연동
 api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
 
 if not api_key:
-    st.error("🔑 API key not found. Please check your Streamlit Secrets configuration.")
+    st.error("API key not found. Please check your Streamlit Secrets configuration.")
     st.stop()
 
 # 제미나이 최신 클라이언트 초기화
 client = genai.Client(api_key=api_key)
 
-# 4. 최상단 타이틀 및 안내문 (영어 고정으로 인코딩 오류 예방)
+# 3. 최상단 타이틀 및 안내문 (한글 깨짐 방지를 위해 영문 메인 구성)
 st.title("🤼 Northern Ssireum Global Masterclass")
 st.caption("Experience the biomechanical elegance of traditional martial arts with our AI Master Instructor.")
 st.markdown("---")
 
-# 5. 화면 분할: 좌측(영상 플레이어) | 우측(실시간 AI 튜터 챗봇)
+# 4. 화면 분할: 좌측(영상 플레이어) | 우측(실시간 AI 튜터 챗봇)
 col1, col2 = st.columns()
 
 # --- 좌측 라인: 비디오 교재 공간 ---
@@ -40,7 +34,7 @@ with col1:
         ["1. Core Theory & History", "2. Kinematic Body Mechanics", "3. Physical Conditioning"]
     )
     
-    # 실제 연동하신 질문자님의 유튜브 영상 주소들이 안정적으로 송출됩니다.
+    # [★ 중요] 실제 영상 주소를 이곳의 따옴표 안 주소와 교체하시면 됩니다.
     video_urls = {
         "1. Core Theory & History": "https://youtube.com",
         "2. Kinematic Body Mechanics": "https://www.youtube.com/watch?v=nMp_HV20zI4",
@@ -62,7 +56,7 @@ with col2:
     - Engagement: You must actively drive and control the lecture. Do not leave students to browse through materials passively. You open the doors of knowledge, propose the curriculum, and guide their steps proactively.
     - Biomechanical Core Knowledge Base:
       1. Weight Distribution: Modern Southern Ssireum anchors 100% of the body weight onto the forward right leg. Northern Ssireum maintains a neutral, equal 50:50 distribution on both feet to ensure rapid multi-directional rotational torque and instant mobility, akin to Mongolian Bokh.
-      2. Upper Body Mechanics: Unlik the Southern style that pulls the opponent inward by locking the scapulae backward, Northern Ssireum creates a "Counter-tension structure." Hips anchor back for grounding, while the upper body and arms press forward aggressively, applying centripetal and forward-pressing pressure.
+      2. Upper Body Mechanics: Unlike the Southern style that pulls the opponent inward by locking the scapulae backward, Northern Ssireum creates a "Counter-tension structure." Hips anchor back for grounding, while the upper body and arms press forward aggressively, applying centripetal and forward-pressing pressure.
     - Interaction Rules: When a student connects, greet them with deep respect and immediately present the structured choices for today's masterclass. Speak and give feedback entirely in fluent, elegant English.
     """
 
@@ -115,4 +109,4 @@ with col2:
                             if part.inline_data:
                                 st.audio(part.inline_data.data, format="audio/mp3")
                 except Exception as e:
-                    st.error(f"An error occurred during response generation. Please try again.")
+                    st.error("The Master is temporarily unavailable. Please try typing your question again.")
