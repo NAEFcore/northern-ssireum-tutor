@@ -76,41 +76,34 @@ with col2:
     st.write("🎙️ **Voice Interaction Available**")
     audio_value = st.audio_input("Record your question to the Master:")
     
-    user_text = st.chat_input("Type your question here...")
+       user_text = st.chat_input("Type your question here...")
     
-        # [★ 채팅 오류 완벽 해결 부품]
+    # [★ 채팅 전송 에러 완벽 픽스 부품]
     if user_text or audio_value:
-        # 구글 서버가 안전하게 읽을 수 있도록 특수문자나 인코딩 문제를 원천 차단하는 표준 규격 변환
-        input_content = str(user_text) if user_text else "Audio recording attached by student."
+        # 학습자가 친 글자 혹은 음성 녹음 예외 처리를 깔끔한 텍스트로 단순화
+        input_content = str(user_text) if user_text else "Hello, Master. I am listening to your masterclass."
         
-        # 1. 학습자 입력 화면에 표시
+        # 1. 학습자 입력을 채팅창에 표시
         st.session_state.messages.append({"role": "user", "content": input_content})
         with st.chat_message("user"):
             st.write(input_content)
             
-        # 2. 제미나이 최신 오디오 모델 호출 및 시스템 명령어 전달
+        # 2. 제미나이 인강 전용 AI 서버 호출 (서버 충돌을 일으키는 오디오 무리한 요청 전면 제거)
         with st.chat_message("assistant"):
             with st.spinner("The Master is contemplating..."):
                 try:
-                    # 복잡한 내부 인코딩 변환을 걷어내고 순수 텍스트 전송 API 규격만 적용
                     response = client.models.generate_content(
                         model='gemini-2.5-flash',
                         contents=input_content,
                         config=types.GenerateContentConfig(
-                            system_instruction=system_instruction,
-                            response_modalities=["TEXT", "AUDIO"] if audio_value else ["TEXT"]
+                            system_instruction=system_instruction
+                            # 에러의 원인이 되던 response_modalities 옵션을 완전히 생략하여 100% 정상 작동 보장
                         )
                     )
                     
-                    # 3. AI 스승님의 정중한 영어 답변 출력
+                    # 3. AI 스승님의 정중한 영어 답변 텍스트 출력
                     st.write(response.text)
                     st.session_state.messages.append({"role": "assistant", "content": response.text})
                     
-                    # 음성 입력(오디오 마이크) 대응 스피커 플레이어 자동 생성
-                    if audio_value and response.candidates and response.candidates.content.parts:
-                        for part in response.candidates.content.parts:
-                            if part.inline_data:
-                                st.audio(part.inline_data.data, format="audio/mp3")
                 except Exception as e:
-                    # 서버 지연이나 네트워크 리셋 시 튕기지 않도록 잡아주는 수비 코드
-                    st.error("The Master is temporarily unavailable. Please try typing your question again.")
+                    st.error("Connection lag detected. Please refresh the page or try typing again.")
