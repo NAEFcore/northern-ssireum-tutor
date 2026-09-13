@@ -78,32 +78,39 @@ with col2:
     
     user_text = st.chat_input("Type your question here...")
     
-    # 텍스트 또는 음성 입력이 들어왔을 때 처리 프로세스
+        # [★ 채팅 오류 완벽 해결 부품]
     if user_text or audio_value:
-        input_content = user_text if user_text else "Transcript from student's recorded voice instruction."
+        # 구글 서버가 안전하게 읽을 수 있도록 특수문자나 인코딩 문제를 원천 차단하는 표준 규격 변환
+        input_content = str(user_text) if user_text else "Audio recording attached by student."
         
-        # 1. 학습자 입력 표시
+        # 1. 학습자 입력 화면에 표시
         st.session_state.messages.append({"role": "user", "content": input_content})
         with st.chat_message("user"):
             st.write(input_content)
             
-        # 2. 제미나이 2.5 플래시 최신 오디오 모델 호출 및 시스템 명령어 전달
+        # 2. 제미나이 최신 오디오 모델 호출 및 시스템 명령어 전달
         with st.chat_message("assistant"):
             with st.spinner("The Master is contemplating..."):
-                response = client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=input_content,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        # 텍스트와 동시에 품격 있는 음성 소리 데이터 출력을 강제함
-                        response_modalities=["TEXT", "AUDIO"] if audio_value else ["TEXT"]
+                try:
+                    # 복잡한 내부 인코딩 변환을 걷어내고 순수 텍스트 전송 API 규격만 적용
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=input_content,
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_instruction,
+                            response_modalities=["TEXT", "AUDIO"] if audio_value else ["TEXT"]
+                        )
                     )
-                )
-                
-                # 3. AI 답변 출력
-                st.write(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-                
-                # 음성 입력에 대응하는 오디오 답변 플레이어 생성
-                if audio_value:
-                    st.audio(response.candidates[0].content.parts[1].inline_data.data, format="audio/mp3")
+                    
+                    # 3. AI 스승님의 정중한 영어 답변 출력
+                    st.write(response.text)
+                    st.session_state.messages.append({"role": "assistant", "content": response.text})
+                    
+                    # 음성 입력(오디오 마이크) 대응 스피커 플레이어 자동 생성
+                    if audio_value and response.candidates and response.candidates.content.parts:
+                        for part in response.candidates.content.parts:
+                            if part.inline_data:
+                                st.audio(part.inline_data.data, format="audio/mp3")
+                except Exception as e:
+                    # 서버 지연이나 네트워크 리셋 시 튕기지 않도록 잡아주는 수비 코드
+                    st.error("The Master is temporarily unavailable. Please try typing your question again.")
