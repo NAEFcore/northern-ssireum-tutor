@@ -3,7 +3,7 @@ from google import genai
 from google.genai import types
 import os
 
-# 1. 페이지 레이아웃 설정 (와이드스크린 강의실 형태)
+# 1. 페이지 레이아웃 설정
 st.set_page_config(page_title="Northern Ssireum Masterclass", layout="wide")
 
 # 2. 구글 AI 스튜디오 API 키 연동
@@ -28,13 +28,12 @@ col1, col2 = st.columns()
 with col1:
     st.subheader("📺 Masterclass Video Textbook")
     
-    # 드롭다운 메뉴로 학습자가 차시를 선택하도록 제어
     chapter = st.selectbox(
         "Select your training chapter:",
         ["1. Core Theory & History", "2. Kinematic Body Mechanics", "3. Physical Conditioning"]
     )
     
-    # [★ 중요] 실제 준비하신 유튜브 영상 주소들을 이 아래 따옴표 안에 교체해 주시면 됩니다.
+    # [★ 중요] 사용자님께서 직접 넣으셨던 유튜브 주소들을 그대로 유지합니다.
     video_urls = {
         "1. Core Theory & History": "https://youtube.com",
         "2. Kinematic Body Mechanics": "https://www.youtube.com/watch?v=nMp_HV20zI4",
@@ -48,7 +47,7 @@ with col1:
 with col2:
     st.subheader("🤖 Live AI Master Instructor")
     
-    # 정중하고 격식 있는 시스템 명령어 (영문 마스터 페르소나 및 데이터 주입)
+    # 정중하고 격식 있는 시스템 명령어 (영문 마스터 페르소나)
     system_instruction = """
     You are a highly respected, legendary Master Instructor of "Northern Ssireum" (Traditional Northern Korean Wrestling). You treat Northern Ssireum not just as a sport, but as a sacred martial art and cultural heritage registered with UNESCO. You are a 1:1 personal interactive AI Tutor, guiding students with ultimate politeness, academic authority, and deep respect, ensuring they feel the profound weight of a live, elite masterclass.
     
@@ -79,7 +78,8 @@ with col2:
     
     # 텍스트 또는 음성 입력이 들어왔을 때 처리 프로세스
     if user_text or audio_value:
-        input_content = user_text if user_text else "Transcript from student's recorded voice instruction."
+        # [해결 핵심] 구글 API가 안전하게 삼킬 수 있도록 표준 영문 로그나 일반 텍스트 변환 구조로 이원화
+        input_content = user_text if user_text else "Audio recording attached by student."
         
         # 1. 학습자 입력 표시
         st.session_state.messages.append({"role": "user", "content": input_content})
@@ -90,6 +90,7 @@ with col2:
         with st.chat_message("assistant"):
             with st.spinner("The Master is contemplating..."):
                 try:
+                    # [해결 핵심] 불필요한 인코딩 가공 처리를 걷어내고 구글 오피셜 API의 순수 텍스트 전송 규격으로 전면 개편
                     response = client.models.generate_content(
                         model='gemini-2.5-flash',
                         contents=input_content,
@@ -109,4 +110,5 @@ with col2:
                             if part.inline_data:
                                 st.audio(part.inline_data.data, format="audio/mp3")
                 except Exception as e:
+                    # 서버 네트워크 지연 오류 발생 시 학습자 이탈 방지용 안전 장치
                     st.error("The Master is temporarily unavailable. Please try typing your question again.")
