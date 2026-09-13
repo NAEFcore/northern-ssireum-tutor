@@ -16,7 +16,7 @@ if not api_key:
 # 제미나이 최신 클라이언트 초기화
 client = genai.Client(api_key=api_key)
 
-# 3. 최상단 타이틀 및 안내문 (한글 깨짐 방지를 위해 영문 메인 구성)
+# 3. 최상단 타이틀 및 안내문
 st.title("🤼 Northern Ssireum Global Masterclass")
 st.caption("Experience the biomechanical elegance of traditional martial arts with our AI Master Instructor.")
 st.markdown("---")
@@ -34,7 +34,7 @@ with col1:
         ["1. Core Theory & History", "2. Kinematic Body Mechanics", "3. Physical Conditioning"]
     )
     
-    # [★ 중요] 실제 영상 주소를 이곳의 따옴표 안 주소와 교체하시면 됩니다.
+    # [★ 중요] 실제 준비하신 유튜브 영상 주소들을 이 아래 따옴표 안에 교체해 주시면 됩니다.
     video_urls = {
         "1. Core Theory & History": "https://youtube.com",
         "2. Kinematic Body Mechanics": "https://www.youtube.com/watch?v=nMp_HV20zI4",
@@ -104,8 +104,8 @@ with col2:
                     st.session_state.messages.append({"role": "assistant", "content": response.text})
                     
                     # 음성 입력에 대응하는 오디오 답변 플레이어 생성
-                    if audio_value and response.candidates and response.candidates[0].content.parts:
-                        for part in response.candidates[0].content.parts:
+                    if audio_value and response.candidates and response.candidates.content.parts:
+                        for part in response.candidates.content.parts:
                             if part.inline_data:
                                 st.audio(part.inline_data.data, format="audio/mp3")
                 except Exception as e:
