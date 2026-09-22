@@ -1,2 +1,5 @@
 streamlit
-google-genai
+yt-dlp
+opencv-python-headless
+mediapipe
+numpy
